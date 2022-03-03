@@ -4,6 +4,7 @@ require('dotenv').config();
 const translate = require('translate');
 const translateFR = require('translate');
 const puppeteer = require('puppeteer');
+const { text } = require('express');
 
 
 function processText(inputText) {
@@ -25,7 +26,8 @@ async function scrap() {
         let data = {
             "skills": {
                 "name": [],
-                "level":[],
+                "level": [],
+                "picture":[],
             },
             "gameplayEn": [],
             "stats": [],
@@ -40,8 +42,15 @@ async function scrap() {
                 "Tier3": [],
             },
             "Runes": {
-                "Skills": [],
-                "Runes": [],
+                "Skills": {
+                    "Name": [],
+                    "Picture":[]
+                },
+                "Runes": {
+                    "Name": [],
+                    "Picture":[]
+                },
+
             },
             "Gems": {
                 "Attacks": [],
@@ -57,7 +66,8 @@ async function scrap() {
                     "Effect": [],
                 },
             },
-            "Error":[]
+            "Error": [],
+            "PictuireSkills":[]
         };
 
         try {
@@ -109,10 +119,10 @@ async function scrap() {
             document.querySelector("#advgb-col-eeb17e9e-2d0d-45d3-9961-f0b7a571195c > div > table > tbody").innerText.replace(/^\s+|\s+$/gm, '/').replace('\t', '\n').split("\n").forEach((element, index) => {
                 if (index >= 2) {
                     if (index % 2 == 0) {
-                        data["Runes"]["Skills"].push(element.replace('/', ''));
+                        data["Runes"]["Skills"]['Name'].push(element.replace('/', ''));
     
                     } else {
-                        data["Runes"]["Runes"].push(element.replaceAll('//',' / '));
+                        data["Runes"]["Runes"]['Name'].push(element.replaceAll('//',' / '));
                     }
                 }
             });
@@ -135,16 +145,30 @@ async function scrap() {
                     data["Card Sets"]["Optimal Damage Card"]["Effect"].push(element);
                 }
             });
+            for (let index = 1; index <= document.querySelector("#advgb-col-a2526fce-a0c3-4cc8-a21c-f16383fe89c2 > div > figure > div > div > div > div > div > div.lap-body > div.lap-skills").childNodes.length; index++) {
+                let url = document.querySelector("#advgb-col-a2526fce-a0c3-4cc8-a21c-f16383fe89c2 > div > figure > div > div > div > div > div > div.lap-body > div.lap-skills > div:nth-child(" + index + ") > div.lap-skill-icon").outerHTML;
+                data['skills']['picture'].push(url.substring(url.indexOf('https'), url.indexOf('.png')+4))            
+            };
+
+            for (let index = 1; index <= document.querySelector("#advgb-col-eeb17e9e-2d0d-45d3-9961-f0b7a571195c > div > table > tbody").children.length; index++) {
+                let url = document.querySelector("#advgb-col-eeb17e9e-2d0d-45d3-9961-f0b7a571195c > div > table > tbody > tr:nth-child(" + index + ")").outerHTML;
+                let urlRunes = document.querySelector("#advgb-col-eeb17e9e-2d0d-45d3-9961-f0b7a571195c > div > table > tbody > tr:nth-child(" + index + ") > td:nth-child(2)").outerHTML;
+                if (url.includes('https')) {
+                    data['Runes']['Skills']['Picture'].push(url.substring(url.indexOf('https'), url.indexOf('.png')+4))
+                    data['Runes']['Runes']['Picture'].push(urlRunes.substring(urlRunes.indexOf('https'), urlRunes.indexOf('.png')+4))
+                }
+                
+            }
         } catch (error) {
             console.log(error);
             data.Error.push(error.message)
         }
+
         return data;
     });
     await brower.close();
     return tables;
 }
-
 /* GET home page. */
 router.get('/', function (req, res, next) {
     res.setHeader('Content-Type', 'application/json');
