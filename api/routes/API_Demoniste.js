@@ -4,17 +4,7 @@ require('dotenv').config();
 const translate = require('translate');
 const translateFR = require('translate');
 const puppeteer = require('puppeteer');
-const { text } = require('express');
-
-
-function processText(inputText) {
-    var output = [];
-    var json = inputText.split(' ');
-    json.forEach(function (item) {
-        output.push(item.replace(/\'/g, '').split(/(\d+)/).filter(Boolean));
-    });
-    return output;
-}
+const cache = require('./../caches');
 
 async function scrap() {
     const brower = await puppeteer.launch({
@@ -61,6 +51,7 @@ async function scrap() {
                 "Budget Card": {
                     "Card": [],
                     "Effect": [],
+                    "Picture": [],
                 },
                 "Optimal Damage Card": {
                     "Card": [],
@@ -161,7 +152,13 @@ async function scrap() {
                 
             }
             let url = document.querySelector("#advgb-col-c0cbd474-146a-43e0-a2b7-34fe910ec593 > div > p > span > span > span.lap-skill-icon").outerHTML;
-            data['Gems']['Picture'].push(url.substring(url.indexOf('https'), url.indexOf('.png')+4))
+            data['Gems']['Picture'].push(url.substring(url.indexOf('https'), url.indexOf('.png') + 4))
+            document.querySelector("#ftwp-postcontent > figure:nth-child(78) > div > div > div > div > div.lap-CardList").outerHTML.split('img').forEach((element) => {
+                if (element.includes('https')) {
+                    data['Card Sets']['Budget Card']['Picture'].push(element.substring(element.indexOf('https'), element.indexOf('.png') + 4))
+                }
+            });
+
         } catch (error) {
             console.log(error);
             data.Error.push(error.message)
@@ -174,11 +171,14 @@ async function scrap() {
 }
 /* GET home page. */
 router.get('/', function (req, res, next) {
+    console.log(req.protocol + '://' + req.headers.host + req.originalUrl);
+    cache.get
     res.setHeader('Content-Type', 'application/json');
     scrap().then((result) => {
         res.json(
             result
         )
+        cache.set
     });
 });
 
