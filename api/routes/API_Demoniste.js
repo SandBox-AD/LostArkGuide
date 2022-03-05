@@ -55,6 +55,7 @@ async function scrap() {
             "Gems": {
                 "Attacks": [],
                 "Cooldown": [],
+                "Picture":[],
             },
             "Card Sets": {
                 "Budget Card": {
@@ -159,6 +160,8 @@ async function scrap() {
                 }
                 
             }
+            let url = document.querySelector("#advgb-col-c0cbd474-146a-43e0-a2b7-34fe910ec593 > div > p > span > span > span.lap-skill-icon").outerHTML;
+            data['Gems']['Picture'].push(url.substring(url.indexOf('https'), url.indexOf('.png')+4))
         } catch (error) {
             console.log(error);
             data.Error.push(error.message)
