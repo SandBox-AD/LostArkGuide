@@ -1,19 +1,21 @@
+import random
 import requests
 import json
 import logging
 import os
 import asyncio
 
-
-async def test():
-    for i in range(0,3000):
+file_json=os.getcwd()+'/response/demonisteTest.json'
+async def test(file_log, end):
+    logging.info("Number test :"+str(end))
+    for i in range(0, end):
         api = requests.get("http://localhost:9000/API/Demoniste")
         if i == 0:
-            with open('response/demonisteTest.json', 'w') as outfile:
-                json.dump(api.json(), outfile)
+            with open(file_log, 'w') as outfile:
+                json.dump(api.json(), outfile, indent=4)
 
-logging.basicConfig(filename='python_test/log/test.log', encoding='utf-8', level=logging.DEBUG)
+logging.basicConfig(filename=os.getcwd()+'/python_test/log/test.log', encoding='utf-8', level=logging.DEBUG, format='%(levelname)s:%(message)s')
 os.system("echo start")
-asyncio.run(test())
-asyncio.run(test())
+asyncio.run(test(file_json,random.randint(0, 5000)))
+asyncio.run(test(file_json,random.randint(0, 5000)))
 os.system("echo end")

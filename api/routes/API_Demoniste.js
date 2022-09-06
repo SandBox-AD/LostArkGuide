@@ -4,13 +4,16 @@ require('dotenv').config();
 const translate = require('translate');
 const translateFR = require('translate');
 const puppeteer = require('puppeteer');
-const cache = require('./../caches');
+// const cache = require('./../caches');
+var cacheService = require('express-api-cache');
+var cache = cacheService.cache;
 
 async function scrap() {
     const brower = await puppeteer.launch({
         headless: true
     });
     const page = await brower.newPage();
+    await page.setDefaultNavigationTimeout(0);
     await page.goto("https://lost-ark.maxroll.gg/build-guides/demonic-impulse-shadowhunter-raid-guide");
     const tables = await page.evaluate(async () => {
         let data = {
@@ -47,13 +50,13 @@ async function scrap() {
                 "Cooldown": [],
                 "Picture":[],
             },
-            "Card Sets": {
-                "Budget Card": {
+            "Card_Sets": {
+                "Budget_Card": {
                     "Card": [],
                     "Effect": [],
                     "Picture": [],
                 },
-                "Optimal Damage Card": {
+                "Optimal_Damage_Card": {
                     "Card": [],
                     "Effect": [],
                 },
@@ -123,18 +126,18 @@ async function scrap() {
             
             document.querySelector("#ftwp-postcontent > figure:nth-child(78) > div > div > div > div").innerText.split("\n").forEach((element, index) => {
                 if (index <=5) {
-                    data["Card Sets"]["Budget Card"]["Card"].push(element);
+                    data["Card_Sets"]["Budget_Card"]["Card"].push(element);
                 }
                 else {
-                    data["Card Sets"]["Budget Card"]["Effect"].push(element);
+                    data["Card_Sets"]["Budget_Card"]["Effect"].push(element);
                 }
             });
             document.querySelector("#ftwp-postcontent > figure:nth-child(80) > div > div > div > div").innerText.split("\n").forEach((element, index) => {
                 if (index <=5) {
-                    data["Card Sets"]["Optimal Damage Card"]["Card"].push(element);
+                    data["Card_Sets"]["Optimal_Damage_Card"]["Card"].push(element);
                 }
                 else {
-                    data["Card Sets"]["Optimal Damage Card"]["Effect"].push(element);
+                    data["Card_Sets"]["Optimal_Damage_Card"]["Effect"].push(element);
                 }
             });
             for (let index = 1; index <= document.querySelector("#advgb-col-a2526fce-a0c3-4cc8-a21c-f16383fe89c2 > div > figure > div > div > div > div > div > div.lap-body > div.lap-skills").childNodes.length; index++) {
@@ -155,7 +158,7 @@ async function scrap() {
             data['Gems']['Picture'].push(url.substring(url.indexOf('https'), url.indexOf('.png') + 4))
             document.querySelector("#ftwp-postcontent > figure:nth-child(78) > div > div > div > div > div.lap-CardList").outerHTML.split('img').forEach((element) => {
                 if (element.includes('https')) {
-                    data['Card Sets']['Budget Card']['Picture'].push(element.substring(element.indexOf('https'), element.indexOf('.png') + 4))
+                    data['Card_Sets']['Budget_Card']['Picture'].push(element.substring(element.indexOf('https'), element.indexOf('.png') + 4))
                 }
             });
 
@@ -170,15 +173,12 @@ async function scrap() {
     return tables;
 }
 /* GET home page. */
-router.get('/', function (req, res, next) {
-    console.log(req.protocol + '://' + req.headers.host + req.originalUrl);
-    cache.get
+router.get('/', cache("10 minutes"), (req, res, next) => {
     res.setHeader('Content-Type', 'application/json');
     scrap().then((result) => {
         res.json(
             result
         )
-        cache.set
     });
 });
 

@@ -6,6 +6,27 @@ var logger = require('morgan');
 var cors = require("cors");
 var livereload = require('livereload');
 const connectLiveReload = require('connect-livereload');
+// const swaggerUi = require('swagger-ui-express')
+// const swaggerJsdoc = require('swagger-jsdoc');
+// const options = {
+//   definition: {
+//     openapi: '3.0.0',
+//     info: {
+//       title: 'Api LostArk',
+//       version: '1.0.0',
+//       description: 'This is a REST API application made with Express.',
+//     },
+//   },
+//   servers: [
+//     {
+//       url: 'http://localhost:3000',
+//       description: 'Development server',
+//     },
+//   ],
+//   apis: ['./routes/*.js']
+// }
+// const swaggerSpec = swaggerJsdoc(options);
+
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -34,6 +55,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(connectLiveReload());
 
 app.use('/', indexRouter);
+// app.use('/api', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/users', usersRouter);
 app.use('/testAPI', testAPIRouter);
 app.use('/API/Demoniste', APIDemoniste);
