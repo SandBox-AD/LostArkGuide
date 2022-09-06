@@ -1,0 +1,6 @@
+[submodule "LostArkGuide-client"]
+	path = LostArkGuide-client
+	url = git@github.com:SandBox-AD/LostArkGuide-client.git
+[submodule "LostArkGuide-API"]
+	path = LostArkGuide-API
+	url = git@github.com:SandBox-AD/LostArkGuide-API.git
